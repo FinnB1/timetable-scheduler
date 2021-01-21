@@ -6,7 +6,7 @@ import random
 import math
 
 
-class mainscheduler:
+class task1_scheduler:
 
     def __init__(self, comedian_List, demographic_List):
         self.comedian_List = comedian_List
@@ -29,6 +29,13 @@ class mainscheduler:
         self.slots.remove(slot)
         if len(self.slots) > 0:
             return self.slots[0]
+
+    def sort_dict(self, dict):
+        keysort = sorted(dict, key=lambda demographic: len(dict[demographic]))
+        new_dict = {}
+        for i in range(0, len(keysort)):
+            new_dict[keysort[i]] = dict[keysort[i]]
+        return new_dict
 
     def check_constraints(self, comedian, assignments, day):
         count = 0
@@ -79,31 +86,21 @@ class mainscheduler:
                     matches[demographic].append(comedian)
 
         assigned = {}
+        matches = self.sort_dict(matches)
 
-        # could find a way to sort matches ascending in length of comedians that can fulfill the show?
+
         for group in matches:
-
+            selected = 0
+            comedian = matches[group][selected]
             if len(matches[group]) == 1:
-                comedian = matches[group][0]
                 while not self.check_constraints(comedian, assigned, slot[0]):
-                    slot = self.slots[self.slots.index(slot)+1]
-                # get new slot
-                timetableObj.addSession(days[slot[0]], slot[1], comedian, group, "main")
-                assigned[tuple(slot)] = comedian
-                print("Assigning " + comedian.name + " to " + days[slot[0]])
-                slot = self.next_slot(slot)
-
-        for group in matches:
-            if len(matches[group]) > 1:
-                selected = 0
+                    slot = self.slots[self.slots.index(slot) + 1]
+            while not self.check_constraints(comedian, assigned, slot[0]) and selected < len(matches[group]) -1:
+                selected += 1
                 comedian = matches[group][selected]
-                while not self.check_constraints(comedian, assigned, slot[0]) and selected < len(matches[group]) -1:
-                    selected += 1
-                    comedian = matches[group][selected]
-                # Maybe use a stack in case a comedian is used twice you can backtrack and use a different one
-                timetableObj.addSession(days[slot[0]], slot[1], comedian, group, "main")
-                assigned[tuple(slot)] = comedian
-                print("assigning " + comedian.name + " to " + days[slot[0]])
-                slot = self.next_slot(slot)
-                # do something here using while loop
+            # Maybe use a stack in case a comedian is used twice you can backtrack and use a different one
+            timetableObj.addSession(days[slot[0]], slot[1], comedian, group, "main")
+            assigned[tuple(slot)] = comedian
+            print("assigning " + comedian.name + " to " + days[slot[0]])
+            slot = self.next_slot(slot)
         return timetableObj

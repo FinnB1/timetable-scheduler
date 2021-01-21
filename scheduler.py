@@ -1,8 +1,10 @@
 import comedian
 import demographic
 import ReaderWriter
+import task3
 import timetable
-import mainscheduler
+import task1
+import task2
 import random
 import math
 
@@ -57,9 +59,10 @@ class Scheduler:
         timetableObj = timetable.Timetable(1)
 
         # Here is where you schedule your timetable
-
+        rmscheduler = task1.task1_scheduler(self.comedian_List, self.demographic_List)
+        timetableObj = rmscheduler.schedule(timetableObj)
         # This line generates a random timetable, that may not be valid. You can use this or delete it.
-        timetableObj = self.randomMainSchedule(timetableObj)
+
 
         # Do not change this line
         return timetableObj
@@ -76,9 +79,9 @@ class Scheduler:
         timetableObj = timetable.Timetable(2)
 
         # Here is where you schedule your timetable
-
+        rmscheduler = task2.task2_scheduler(self.comedian_List, self.demographic_List)
+        timetableObj = rmscheduler.schedule(timetableObj)
         # This line generates a random timetable, that may not be valid. You can use this or delete it.
-        self.randomMainAndTestSchedule(timetableObj)
 
         # Do not change this line
         return timetableObj
@@ -100,7 +103,8 @@ class Scheduler:
         # Here is where you schedule your timetable
 
         # This line generates a random timetable, that may not be valid. You can use this or delete it.
-        self.randomMainAndTestSchedule(timetableObj)
+        rmscheduler = task3.task3_scheduler(self.comedian_List, self.demographic_List)
+        timetableObj = rmscheduler.schedule(timetableObj)
 
         # Do not change this line
         return timetableObj
@@ -108,8 +112,7 @@ class Scheduler:
 
     # This simplistic approach merely assigns each demographic and comedian to a random, iterating through the timetable.
     def randomMainSchedule(self, timetableObj):
-        rmscheduler = mainscheduler.mainscheduler(self.comedian_List, self.demographic_List)
-        return rmscheduler.schedule(timetableObj)
+        pass
 
     # This simplistic approach merely assigns each demographic to a random main and test show, with a random comedian, iterating through the timetable.
     def randomMainAndTestSchedule(self, timetableObj):
