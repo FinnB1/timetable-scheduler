@@ -87,24 +87,40 @@ class task3_scheduler:
 
         if not self.check_constraints(com, demo, self.assigned, slot[0], show_type):
             return 0
+        # add this but for test shows
 
-        if len(comedians_list[com]) + len(demos_list[demo]) == 2:
+        #CLEAN THIS UP
+        if len(comedians_list[com]) == 1 and len(demos_list[demo]) == 1 and com not in self.used_mains:
             return 9999
 
-        if len(comedians_list[com]) < 2:
+        if len(comedians_list[com]) < 2 and com not in self.used_mains and show_type == "main":
             return 0.0001
-        aspect1 = len(comedians_list[com]) / 5
-        aspect2 = 0.5 / len(demos_list[demo])
+
+        if len(comedians_list[com]) < 4 and com not in self.used_tests and show_type == "test":
+            return 0.0001
+
+        if show_type =="test" and com in self.used_mains:
+            return 0.0001
+        # prioritise comedians with fewer possible shows
+        aspect1 = 1 / len(comedians_list[com])
+        if show_type == "test":
+            aspect1 = len(comedians_list[com]) * 0.5
+        # prioritise if not many other comedians can do this show
+        aspect2 = 1 / len(demos_list[demo])
 
         if show_type == "test":
             aspect1 += self.used_tests.count(com)
         else:
-            aspect1 += self.used_mains.count(com)
+            aspect1 += self.used_mains.count(com) * 5
 
         cost = 1 / (self.cost(com, slot, self.assigned, "main") / 50)
         return aspect1 + aspect2 + cost
 
-
+    def prune_used(self, main_comedians, group):
+        for comedian in main_comedians:
+            if group in main_comedians[comedian]:
+                main_comedians[comedian].remove(group)
+        return main_comedians
 
 
     # This simplistic approach merely assigns each demographic and comedian to a random, iterating through the
@@ -156,9 +172,6 @@ class task3_scheduler:
         needed = []
         main_cost = 0
         test_cost = 0
-        print(main_comedians)
-        print(main_comedians[self.comedian_List[0]])
-        print(main_comedians[self.comedian_List[13]])
 
         for x in range (0, 25):
             max = 0
@@ -179,6 +192,7 @@ class task3_scheduler:
             main_cost += self.cost(chosen[0], slot, self.assigned, "main")
             self.assigned[tuple(slot)] = (chosen[0], "main", chosen[1])
             self.used_mains.append(chosen[0])
+            main_comedians = self.prune_used(main_comedians, chosen[1])
             main_matches.remove(chosen)
             slot = self.next_slot(slot)
 
@@ -199,6 +213,8 @@ class task3_scheduler:
                        self.cost(chosen[0], slot, self.assigned, "test")))
             print(self.heuristic(chosen, slot, test_comedians, test_demos, "test"))
             timetableObj.addSession(days[slot[0]], slot[1], chosen[0], chosen[1], "test")
+            if chosen[0].name == "Mccaslin":
+                print(test_comedians[self.comedian_List[35]])
             self.used_tests.append(chosen[0])
             if chosen[0] in last_comedian:
                 print("minus " + str(((self.cost(chosen[0], slot, self.assigned, "test") * 2) + 50) / 2))
@@ -209,6 +225,7 @@ class task3_scheduler:
             print("plus "+ str(self.cost(chosen[0], slot, self.assigned, "test")))
             test_cost += self.cost(chosen[0], slot, self.assigned, "test")
             self.assigned[tuple(slot)] = (chosen[0], "test", chosen[1])
+            test_comedians = self.prune_used(test_comedians, chosen[1])
             test_matches.remove(chosen)
             slot = self.next_slot(slot)
         print("Main cost (optimal 7700): " + str(main_cost))
