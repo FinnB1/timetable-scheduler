@@ -26,23 +26,24 @@ class task2_scheduler:
         if len(self.slots) > 0:
             return self.slots[0]
 
-    def sort_dict(self, dictionary):
-        keysort = sorted(dict, key=lambda demographic: len(dict[demographic]))
+    @staticmethod
+    def sort_dict(dictionary):
+        sorted_keys = sorted(dictionary, key=lambda demographic: len(dictionary[demographic]))
         new_dict = {}
-        for i in range(0, len(keysort)):
-            new_dict[keysort[i]] = dict[keysort[i]]
+        for i in range(0, len(sorted_keys)):
+            new_dict[sorted_keys[i]] = dictionary[sorted_keys[i]]
         return new_dict
 
-    def check_constraints(self, comedian, day):
+    def check_constraints(self, selected_comedian, day):
         count = 0
         day_hours = 0
         for a in self.main_assigned:
-            if comedian == self.main_assigned[a]:
+            if selected_comedian == self.main_assigned[a]:
                 if a[0] == day:
                     return False
                 count += 2
         for a in self.test_assigned:
-            if comedian == self.test_assigned[a]:
+            if selected_comedian == self.test_assigned[a]:
                 count += 1
                 if a[0] == day:
                     day_hours += 1
@@ -52,54 +53,54 @@ class task2_scheduler:
 
     # This simplistic approach merely assigns each demographic and comedian to a random, iterating through the
     # timetable.
-    def schedule(self, timetableObj):
+    def schedule(self, timetable_obj):
         slot = [0, 1]
         days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
         main = {}
         test = {}
-        for demographic in self.demographic_list:
-            main[demographic] = []
-            test[demographic] = []
-            for comedian in self.comedian_list:
+        for demo in self.demographic_list:
+            main[demo] = []
+            test[demo] = []
+            for com in self.comedian_list:
                 match_main = True
                 match_test = False
-                for topic in demographic.topics:
-                    if topic not in comedian.themes:
+                for topic in demo.topics:
+                    if topic not in com.themes:
                         match_main = False
-                    elif topic in comedian.themes:
+                    elif topic in com.themes:
                         match_test = True
 
                 if match_main:
-                    main[demographic].append(comedian)
+                    main[demo].append(com)
                 elif match_test:
-                    test[demographic].append(comedian)
+                    test[demo].append(com)
 
         main = self.sort_dict(main)
 
         for group in main:
             selected = 0
-            comedian = main[group][selected]
+            selected_comedian = main[group][selected]
             if len(main[group]) < 2:
-                while not self.check_constraints(comedian, slot[0]):
+                while not self.check_constraints(selected_comedian, slot[0]):
                     slot = self.slots[self.slots.index(slot) + 1]
-            while not self.check_constraints(comedian, slot[0]) and selected < len(main[group]) - 1:
+            while not self.check_constraints(selected_comedian, slot[0]) and selected < len(main[group]) - 1:
                 selected += 1
-                comedian = main[group][selected]
+                selected_comedian = main[group][selected]
             # Maybe use a stack in case a comedian is used twice you can backtrack and use a different one
-            timetableObj.addSession(days[slot[0]], slot[1], comedian, group, "main")
-            self.main_assigned[tuple(slot)] = comedian
+            timetable_obj.addSession(days[slot[0]], slot[1], selected_comedian, group, "main")
+            self.main_assigned[tuple(slot)] = selected_comedian
             # print("assigning " + comedian.name + " to " + days[slot[0]] + " show type: Main")
             slot = self.next_slot(slot)
 
         for group in test:
             selected = 0
-            comedian = test[group][selected]
-            while not self.check_constraints(comedian, slot[0]) and selected < len(test[group]) - 1:
+            selected_comedian = test[group][selected]
+            while not self.check_constraints(selected_comedian, slot[0]) and selected < len(test[group]) - 1:
                 selected += 1
-                comedian = test[group][selected]
+                selected_comedian = test[group][selected]
             # Maybe use a stack in case a comedian is used twice you can backtrack and use a different one
-            timetableObj.addSession(days[slot[0]], slot[1], comedian, group, "test")
-            self.test_assigned[tuple(slot)] = comedian
+            timetable_obj.addSession(days[slot[0]], slot[1], selected_comedian, group, "test")
+            self.test_assigned[tuple(slot)] = selected_comedian
             # print("Assigning " + comedian.name + " to " + days[slot[0]] + " show type: Test")
             slot = self.next_slot(slot)
-        return timetableObj
+        return timetable_obj
