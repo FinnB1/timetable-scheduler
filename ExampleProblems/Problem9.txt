@@ -4,7 +4,7 @@ Brisbane,Three
 Bosarge,Four
 Eslick,Five
 Zink,Six
-Rushing,TwentyFour,TwentyFive
+Rushing,Seven
 Pothier,Eight
 Hedges,Nine
 Dunlap,Ten
@@ -17,12 +17,12 @@ Summitt,Sixteen
 Labarge,Seventeen
 Onstott,Eighteen
 Cora,Nineteen
-Fulp,Twenty
-Reeder,TwentyOne
-Fernald,TwentyTwo
-Vandergrift,TwentyThree
-Roff,TwentyFour
-Spelman,Seven
+Reeder,TwentyOne,Twenty
+Zulp,Twenty,One,Two,Three
+Fernald,TwentyTwo,TwentyFour,TwentyOne
+Vandergrift,TwentyThree,TwentyFour,TwentyOne
+Roff,TwentyFour,TwentyOne
+Spelman,TwentyFive
 ===
 DW460,One
 TA997,Two

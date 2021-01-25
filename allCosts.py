@@ -22,8 +22,8 @@ def check(number):
     [comedian_List, demographic_List] = rw.readRequirements("ExampleProblems/Problem"+str(number)+".txt")
     sch = scheduler.Scheduler(comedian_List, demographic_List)
     #tt = sch.createSchedule()
-    #tt = sch.createTestShowSchedule()
-    tt = sch.createMinCostSchedule()
+    tt = sch.createTestShowSchedule()
+    #tt = sch.createMinCostSchedule()
 
     if tt.scheduleChecker(comedian_List, demographic_List):
 

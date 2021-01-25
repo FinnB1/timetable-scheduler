@@ -241,7 +241,15 @@ class Scheduler:
                 main_comedians[com].remove(group)
         return main_comedians
 
-    # TASK 1 SCHEDULER PREAMBLE HERE
+    # This method models the problem as a CSP (with another inside).
+    # The variables in the outer CSP are the slots in the timetable, with the domain being the matches between demo
+    # graphic and comedian. The matches themselves are similar with the domains being the demographics and the variables
+    # being the comedians that can perform a show for them.
+    # The constraints in question are relatively simple in that a comedian may not be selected more than 2 times and
+    # a value may not be used twice in one day. These constraints are enforced by the task1_constraints method.
+    # The assignment of the matches is ordered by how many comedians can fulfill the show, meaning there should never
+    # be a need to backtrack or forward check. For example if a show has only one comedian who can perform it they will
+    # be assigned first before any others even if the comedian has other possible shows they could perform.
     def createSchedule(self):
         # Do not change this line
         timetableObj = timetable.Timetable(1)
@@ -286,7 +294,7 @@ class Scheduler:
             # Add to the list of assigned matches
             self.assigned[tuple(slot)] = selected_comedian
             # DEBUG PRINT
-            # print("Assigning " + comedian.name + " to " + days[slot[0]])
+            #print("Assigning " + selected_comedian.name + " to " + days[slot[0]])
 
             # Get the next available slot
             slot = self.next_slot(slot, 1)
@@ -294,7 +302,11 @@ class Scheduler:
         # Do not change this line
         return timetableObj
 
-    # TASK 2 PREAMBLE
+    # This task is modelled similarly to the task above but duplicated for test shows and with slightly different
+    # constraints Comedians are now only allowed to be chosen once by main show variables, though they are still
+    # allowed to be chosen twice by test show variables. Main shows are assigned first, with the method only checking
+    # constraints on comedians who have the ability to perform at least one main show. As above, this method requires
+    # no backtracking or forward checking as it assigns in order of |V|.
     def createTestShowSchedule(self):
         # Do not change this line
         timetableObj = timetable.Timetable(2)
@@ -329,6 +341,7 @@ class Scheduler:
 
         # Sort main matches by number of comedians who can match
         main = self.sort_dict(main)
+        test = self.sort_dict(test)
 
         # Loop through matches
         for group in main:
@@ -348,6 +361,7 @@ class Scheduler:
             timetableObj.addSession(days[slot[0]], slot[1], selected_comedian, group, "main")
             # Add match to the list of assigned matches
             self.assigned[tuple(slot)] = (selected_comedian, "main")
+
             # DEBUG PRINT
             # print("Assigning " + comedian.name + " to " + days[slot[0]] + " show type: Main")
 
@@ -375,7 +389,22 @@ class Scheduler:
         # Do not change this line
         return timetableObj
 
-    # TASK 3 PREAMBLE
+    # This tasks takes aspects of the previous task but implements them differently. For this task I decided to try
+    # and implement an A* search algorithm using a heuristic function. I first began with a basic heuristic based
+    # solely on the cost of the show that was going to be assigned. From there I began to optimise the heuristic by
+    # taking into consideration factors such as how many possible alternative shows the comedian could perform,
+    # how many other comedians could perform for the demographic as well as how many times the comedian has performed
+    # already. I tweaked these numbers until I ended with a heuristic function that correctly selected the optimal
+    # shows for each example problem we were provided. I also generated some additional example problems to test it
+    # on. The algorithm in this function works by calculating heuristic values for all matches (or nodes in the
+    # tree), then selecting the one with the highest value (which represents lowest path cost). This is then repeated
+    # starting from the selected node until either the goal state is found or no more nodes/matches remain with a
+    # heuristic value greater than 0. The heuristic function also contains a set of predetermined conditions made for
+    # specific irregular cases such as where a comedian can only perform one show for a demographic who only has one
+    # comedian that can perform it. This is assigned a value that is higher than any possible value for a show to make
+    # sure it is definitely assigned.
+    # For this task I put the slot list in an order such that it represents the optimal layout of test shows and main
+    # shows that can be assigned.
     def createMinCostSchedule(self):
         # Do not change this line
         timetableObj = timetable.Timetable(3)
